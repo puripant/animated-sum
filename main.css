@@ -1,7 +1,31 @@
 body {
-  margin: 0;
+  margin: 50;
   background-color: white;
   display: block;
   font-family: 'Chonburi', sans-serif;
   text-align: center;
+}
+
+.button {
+  display: inline-block;
+  padding: 0.5em;
+  text-align: center;
+  font-size: 1em;
+  border: 1px solid rgb(235, 48, 124);
+  background-color: white;
+  color: rgb(235, 48, 124);
+}
+.button:hover {
+  background-color: rgb(235, 48, 124);
+  color: white;
+  cursor: pointer;
+}
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
 }
