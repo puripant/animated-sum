@@ -21,6 +21,11 @@ h2 {
   letter-spacing: 1px;
 }
 
+.label {
+  font-family: sans-serif;
+  font-size: 11px;
+}
+
 .button {
   display: inline-block;
   padding: 0.5em;

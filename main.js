@@ -1,9 +1,9 @@
 const width = 500;
 const height = 700;
-const margin = { left: 250, right: 50, top: 20, bottom: 20 };
+const margin = { left: 250, right: 50, top: 50, bottom: 20 };
 const cell_size = 10;
 
-const date_scale = d3.scaleLinear()
+const date_scale = d3.scaleTime()
   .domain([new Date(1949, 0, 1), Date.now()])
   .range([0, width]);
 const x_scale = d3.scaleLinear()
@@ -25,7 +25,7 @@ const t = svg.transition().duration(750);
 let names = [];
 let cells = [];
 let draw = () => {
-  svg.selectAll('text')
+  svg.selectAll('.person')
       .data(names)
     .join('text')
       .attr('class', 'person')
@@ -33,12 +33,11 @@ let draw = () => {
       .attr('text-anchor', 'end')
       .attr('fill', d => color_scale(d.rama))
       .attr('y', (d, i) => (i+1) * cell_size - 3)
-      // .attr('x', d => projections.x ? date_scale(date_from_thai_text(d.date_first))-2 : 0)
     .transition(t)
       .delay(d => d.years)
       .attr('x', d => projections.x ? 0 : date_scale(date_from_thai_text(d.date_first))-2);
 
-  svg.selectAll('rect')
+  svg.selectAll('.cell')
       .data(cells)
     .join('rect')
       .attr('class', 'cell')
@@ -49,6 +48,35 @@ let draw = () => {
     .transition(t)
       .delay((d, i) => i)
       .attr('x', d => projections.x ? x_scale(d.date_order) : date_scale(d.date));
+  
+  svg.select('.x-axis')
+    .transition(t)
+    .call(
+      projections.x ? 
+        d3.axisTop(x_scale) :
+        d3.axisTop(date_scale)
+          .ticks(d3.timeYear.every(10))
+          .tickFormat(date => date.getFullYear() + 543)
+    );
+  
+  svg.selectAll('.label').remove();
+  if (projections.x) {
+    svg.append('text')
+      .attr('class', 'label')
+      .attr('text-anchor', 'start')
+      .attr('x', width)
+      .attr('dx', 15)
+      .attr('y', -19)
+      .text('ปี');
+  } else {
+    svg.append('text')
+      .attr('class', 'label')
+      .attr('text-anchor', 'end')
+      .attr('x', 0)
+      .attr('dx', -10)
+      .attr('y', -19)
+      .text('พ.ศ.');
+  }
 }
 
 const project_button = d3.select('#project-button');
@@ -94,6 +122,13 @@ d3.csv('data.csv').then(data => {
     }
     names[idx].years = (idx === 0) ? counter : (names[idx-1].years + counter);
   });
+
+  svg.append('g')
+    .attr("class", "x-axis")
+    .attr("transform", "translate(0,-10)");
+  // svg.append("g")
+  //   .attr("class", "x axis")
+  //   .attr("transform", "translate(0,-10)");
 
   draw();
 });
