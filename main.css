@@ -3,11 +3,22 @@ body {
   background-color: white;
   display: block;
   font-family: 'Chonburi', sans-serif;
+  font-size: 9px;
   text-align: center;
 }
 
-.person {
-  font-size: 9px;
+#title {
+  margin: 20px 0;
+}
+h1 {
+  font-size: 4.5em;
+  margin: 0;
+  letter-spacing: 3px;
+}
+h2 {
+  font-size: 3.2em;
+  margin: 0;
+  letter-spacing: 1px;
 }
 
 .button {

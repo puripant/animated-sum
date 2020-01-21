@@ -1,6 +1,6 @@
 const width = 500;
 const height = 700;
-const margin = { left: 250, right: 50, top: 50, bottom: 50 };
+const margin = { left: 250, right: 50, top: 20, bottom: 20 };
 const cell_size = 10;
 
 const date_scale = d3.scaleLinear()
