@@ -1,14 +1,14 @@
-const width = 600;
-const height = 600;
-const margin = { left: 50, right: 50, top: 50, bottom: 50 };
+const width = 500;
+const height = 700;
+const margin = { left: 250, right: 50, top: 50, bottom: 50 };
 const cell_size = 10;
 
 const date_scale = d3.scaleLinear()
-  .domain([new Date(1940, 0, 1), Date.now()])
+  .domain([new Date(1949, 0, 1), Date.now()])
   .range([0, width]);
 const x_scale = d3.scaleLinear()
   .domain([0, width/cell_size])
-  .range([0, width]);
+  .range([3, width]);
 const y_scale = d3.scaleLinear()
   .domain([0, height/cell_size])
   .range([0, height]);
@@ -22,23 +22,41 @@ const svg = d3.select('#chart')
     .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 const t = svg.transition().duration(750);
 
+let names = [];
 let cells = [];
 let draw = () => {
+  svg.selectAll('text')
+      .data(names)
+    .join('text')
+      .attr('class', 'person')
+      .text(d => d.name)
+      .attr('text-anchor', 'end')
+      .attr('fill', d => color_scale(d.rama))
+      .attr('y', (d, i) => (i+1) * cell_size - 3)
+      // .attr('x', d => projections.x ? date_scale(date_from_thai_text(d.date_first))-2 : 0)
+    .transition(t)
+      .delay(d => d.years)
+      .attr('x', d => projections.x ? 0 : date_scale(date_from_thai_text(d.date_first))-2);
+
   svg.selectAll('rect')
       .data(cells)
     .join('rect')
       .attr('class', 'cell')
-      .attr('width', cell_size)
-      .attr('height', cell_size)
+      .attr('width', cell_size - 1)
+      .attr('height', cell_size - 1)
       .attr('fill', d => color_scale(d.rama))
+      .attr('y', d => y_scale(d.order))
     .transition(t)
-      .attr('x', d => projections.x ? x_scale(d.date_order) : date_scale(d.date))
-      .attr('y', d => y_scale(d.order));
+      .delay((d, i) => i)
+      .attr('x', d => projections.x ? x_scale(d.date_order) : date_scale(d.date));
 }
 
+const project_button = d3.select('#project-button');
 let projections = { x: false, y: false };
 let project_to = axis => {
   projections[axis] = !projections[axis];
+  project_button.text(projections[axis] ? 'เปลี่ยนเป็นช่วงเวลา' : 'เปลี่ยนเป็นจำนวนปี');
+
   draw();
 }
 
@@ -50,16 +68,19 @@ let date_from_thai_text = (text) => {
     return Date.now();
   } else {
     let text_array = text.split(' ');
-    if (text_array.length < 4) {
-      console.log(text_array)
-      return undefined;
-    } else {
+    if (text_array.length === 4) {
       return new Date(text_array[3] - 543, month_from_thai_text(text_array[1]), +text_array[0]);
+    } else if (text_array.length === 2) {
+      return new Date(text_array[1] - 543, 11, 31);
+    } else {
+      console.log(text_array);
+      return undefined;
     }
   }
 }
 
 d3.csv('data.csv').then(data => {
+  names = data;
   data.forEach((d, idx) => {
     let counter = 0;
     for(let date = date_from_thai_text(d.date_first); date <= date_from_thai_text(d.date_last); date.setFullYear(date.getFullYear() + 1)) {
@@ -71,6 +92,7 @@ d3.csv('data.csv').then(data => {
         order: idx,
       })
     }
+    names[idx].years = (idx === 0) ? counter : (names[idx-1].years + counter);
   });
 
   draw();

@@ -6,17 +6,21 @@ body {
   text-align: center;
 }
 
+.person {
+  font-size: 9px;
+}
+
 .button {
   display: inline-block;
   padding: 0.5em;
   text-align: center;
   font-size: 1em;
-  border: 1px solid rgb(235, 48, 124);
+  border: 1px solid black;
   background-color: white;
-  color: rgb(235, 48, 124);
+  color: black;
 }
 .button:hover {
-  background-color: rgb(235, 48, 124);
+  background-color: black;
   color: white;
   cursor: pointer;
 }
