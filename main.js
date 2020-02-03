@@ -135,7 +135,7 @@ d3.csv('data.csv').then(data => {
     let counter = 0;
     for(let date = date_from_thai_text(d.date_first); date <= date_from_thai_text(d.date_last); date.setFullYear(date.getFullYear() + 1)) {
       cells.push({
-        rama: d.rama,
+        rama: (date < date_from_thai_text('6 ธันวาคม พ.ศ. 2559')) ? 9 : 10,
         name: d.name,
         date: new Date(date.getTime()),
         date_order: counter++,
