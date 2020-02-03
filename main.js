@@ -12,7 +12,8 @@ const x_scale = d3.scaleLinear()
 const y_scale = d3.scaleLinear()
   .domain([0, height/cell_size])
   .range([0, height]);
-const color_scale = d3.scaleOrdinal(d3.schemeTableau10);
+const color_scale = d3.scaleOrdinal(d3.schemeTableau10)
+  .domain([9, 10]);
 
 const svg = d3.select('#chart')
   .append('svg')
@@ -27,7 +28,11 @@ let cells = [];
 let draw = () => {
   svg.selectAll('.person')
       .data(names)
-    .join('text')
+    .join(
+      enter => enter.append('text'),
+      update => update,
+      exit => exit.remove()
+    )
       .attr('class', 'person')
       .text(d => d.name)
       .attr('text-anchor', 'end')
@@ -39,7 +44,11 @@ let draw = () => {
 
   svg.selectAll('.cell')
       .data(cells)
-    .join('rect')
+    .join(
+      enter => enter.append("rect"),
+      update => update,
+      exit => exit.remove()
+    )
       .attr('class', 'cell')
       .attr('width', cell_size - 1)
       .attr('height', cell_size - 1)
@@ -77,6 +86,19 @@ let draw = () => {
       .attr('y', -19)
       .text('พ.ศ.');
   }
+
+  // Legend
+  svg.append("g")
+  .attr("class", "legend")
+  .attr("transform", `translate(${width-100},20)`);
+  svg.select(".legend")
+  .call(d3.legendColor()
+    .shapeWidth(cell_size-1)
+    .shapeHeight(cell_size-1)
+    .shapePadding(0)
+    .labels(["รัชกาลที่ 9", "รัชกาลที่ 10"]) //(d => `รัชกาลที่ ${d}`)
+    .scale(color_scale)
+  );
 }
 
 const project_button = d3.select('#project-button');
