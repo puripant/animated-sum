@@ -1,5 +1,5 @@
 const width = 500;
-const height = 700;
+const height = 650;
 const margin = { left: 250, right: 50, top: 50, bottom: 20 };
 const cell_size = 10;
 
@@ -11,6 +11,9 @@ const x_scale = d3.scaleLinear()
   .range([3, width]);
 const y_scale = d3.scaleLinear()
   .domain([0, height/cell_size])
+  .range([0, height]);
+const freq_scale = d3.scaleLinear()
+  .domain([0, height/cell_size + 10])
   .range([0, height]);
 const color_scale = d3.scaleOrdinal(d3.schemeTableau10)
   .domain([9, 10]);
@@ -40,7 +43,8 @@ let draw = () => {
       .attr('y', (d, i) => (i+1) * cell_size - 3)
     .transition(t)
       .delay(d => d.years)
-      .attr('x', d => projections.x ? 0 : date_scale(date_from_thai_text(d.date_first))-2);
+      .attr('x', d => projections.x ? 0 : date_scale(new Date(date_from_thai_text(d.date_first).getFullYear(), 0, 1))-2)
+      .style('opacity', () => projections.y ? 0 : 1);
 
   svg.selectAll('.cell')
       .data(cells)
@@ -53,11 +57,12 @@ let draw = () => {
       .attr('width', cell_size - 1)
       .attr('height', cell_size - 1)
       .attr('fill', d => color_scale(d.rama))
-      .attr('y', d => y_scale(d.order))
     .transition(t)
       .delay((d, i) => i)
-      .attr('x', d => projections.x ? x_scale(d.date_order) : date_scale(d.date));
+      .attr('x', d => projections.x ? x_scale(d.date_order) : date_scale(d.date))
+      .attr('y', d => projections.y ? freq_scale(d.stack) : y_scale(d.order));
   
+  // Axes
   svg.select('.x-axis')
     .transition(t)
     .call(
@@ -101,11 +106,16 @@ let draw = () => {
   );
 }
 
-const project_button = d3.select('#project-button');
+const project_buttons = {
+  x: d3.select('#project-button-x'),
+  y: d3.select('#project-button-y')
+}
 let projections = { x: false, y: false };
-let project_to = axis => {
+let project_along = axis => {
   projections[axis] = !projections[axis];
-  project_button.text(projections[axis] ? 'เปลี่ยนเป็นช่วงเวลา' : 'เปลี่ยนเป็นจำนวนปี');
+  project_buttons.x.text(projections.x ? 'ดูช่วงเวลาของแต่ละคน' : 'ดูจำนวนปีของแต่ละคน');
+  project_buttons.y.text(projections.y ? 'ดูช่วงเวลาของแต่ละคน' : 'ดูจำนวนคนในแต่ละช่วงเวลา');
+  // TODO change it to toggle buttons: ดูช่วงเวลาของแต่ละคน, ดูจำนวนปีของแต่ละคน, ดูจำนวนคนในแต่ละช่วงเวลา
 
   draw();
 }
@@ -131,16 +141,25 @@ let date_from_thai_text = (text) => {
 
 d3.csv('data.csv').then(data => {
   names = data;
+  names_by_month = {};
   data.forEach((d, idx) => {
     let counter = 0;
     for(let date = date_from_thai_text(d.date_first); date <= date_from_thai_text(d.date_last); date.setFullYear(date.getFullYear() + 1)) {
+      let year = date.getFullYear();
+      if (!names_by_month[year]) {
+        names_by_month[year] = [];
+      }
+
       cells.push({
         rama: (date < date_from_thai_text('6 ธันวาคม พ.ศ. 2559')) ? 9 : 10,
         name: d.name,
-        date: new Date(date.getTime()),
+        date: new Date(year, 0, 1), //new Date(date.getTime()),
         date_order: counter++,
         order: idx,
-      })
+        stack: names_by_month[year].length
+      });
+
+      names_by_month[year].push(d.name);
     }
     names[idx].years = (idx === 0) ? counter : (names[idx-1].years + counter);
   });
