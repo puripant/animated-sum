@@ -94,30 +94,36 @@ let draw = () => {
 
   // Legend
   svg.append("g")
-  .attr("class", "legend")
-  .attr("transform", `translate(${width-100},20)`);
+    .attr("class", "legend")
+    .attr("transform", `translate(${width-130},30)`);
   svg.select(".legend")
-  .call(d3.legendColor()
-    .shapeWidth(cell_size-1)
-    .shapeHeight(cell_size-1)
-    .shapePadding(0)
-    .labels(["รัชกาลที่ 9", "รัชกาลที่ 10"]) //(d => `รัชกาลที่ ${d}`)
-    .scale(color_scale)
-  );
+    .classed("dark-background", projections['y'])
+    .call(d3.legendColor()
+      .shapeWidth(cell_size-1)
+      .shapeHeight(cell_size-1)
+      .shapePadding(0)
+      .labels(["รัชกาลที่ 9", "รัชกาลที่ 10"]) //(d => `รัชกาลที่ ${d}`)
+      .scale(color_scale)
+    );
 }
 
 const project_buttons = {
+  default: d3.select('#project-button-default'),
   x: d3.select('#project-button-x'),
   y: d3.select('#project-button-y')
 }
-let projections = { x: false, y: false };
+let projections = { default: true, x: false, y: false };
 let project_along = axis => {
-  projections[axis] = !projections[axis];
-  project_buttons.x.text(projections.x ? 'ดูช่วงเวลาของแต่ละคน' : 'ดูจำนวนปีของแต่ละคน');
-  project_buttons.y.text(projections.y ? 'ดูช่วงเวลาของแต่ละคน' : 'ดูจำนวนคนในแต่ละช่วงเวลา');
-  // TODO change it to toggle buttons: ดูช่วงเวลาของแต่ละคน, ดูจำนวนปีของแต่ละคน, ดูจำนวนคนในแต่ละช่วงเวลา
-
-  draw();
+  if (!projections[axis]) {
+    for (let key in projections) {
+      projections[key] = false;
+      project_buttons[key].classed("highlighted", false);
+    }
+    projections[axis] = true;
+    project_buttons[axis].classed("highlighted", true);
+    
+    draw();
+  }
 }
 
 let month_from_thai_text = (text) => {

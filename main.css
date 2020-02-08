@@ -10,12 +10,12 @@ body {
 #title {
   margin: 20px 0;
 }
-h1 {
+#title h1 {
   font-size: 4.5em;
   margin: 0;
   letter-spacing: 3px;
 }
-h2 {
+#title h2 {
   font-size: 3.2em;
   margin: 0;
   letter-spacing: 1px;
@@ -35,7 +35,7 @@ h2 {
   background-color: white;
   color: black;
 }
-.button:hover {
+.button.highlighted, .button:hover {
   background-color: black;
   color: white;
   cursor: pointer;
@@ -48,4 +48,11 @@ h2 {
         -ms-user-select: none; /* Internet Explorer/Edge */
             user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome and Opera */
+}
+
+.legendCells rect.swatch {
+  stroke: white;
+}
+.dark-background .legendCells text.label {
+  fill: white;
 }
