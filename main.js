@@ -49,7 +49,10 @@ let draw = () => {
   svg.selectAll('.cell')
       .data(cells)
     .join(
-      enter => enter.append("rect"),
+      enter => enter.append("rect")
+        .call(enter => enter.append("svg:title")
+          .text(d => `${d.name}${(d.name_other) ? (" (" + d.name_other + ")") : ""} พ.ศ. ${d.date.getFullYear() + 543} ในรัชกาลที่ ${d.rama}`)
+        ),
       update => update,
       exit => exit.remove()
     )
@@ -57,6 +60,19 @@ let draw = () => {
       .attr('width', cell_size - 1)
       .attr('height', cell_size - 1)
       .attr('fill', d => color_scale(d.rama))
+      .on('mouseover', d => {
+        svg.selectAll('rect.cell')
+          .filter(dd => {
+            if (projections['default']) return dd == d;
+            if (projections['x']) return dd.date.getFullYear() === d.date.getFullYear();
+            if (projections['y']) return dd.name === d.name;
+          })
+          .attr('fill', d => d3.rgb(color_scale(d.rama)).darker(2))
+      })
+      .on('mouseout', () => {
+        svg.selectAll('rect.cell')
+          .attr('fill', d => color_scale(d.rama));
+      })
     .transition(t)
       .delay((d, i) => i)
       .attr('x', d => projections.x ? x_scale(d.date_order) : date_scale(d.date))
